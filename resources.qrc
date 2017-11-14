@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/plugins/SlackTrees" >
+        <file>icon.png</file>
+    </qresource>
+</RCC>
