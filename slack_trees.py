@@ -20,6 +20,7 @@
  *                                                                         *
  ***************************************************************************/
 """
+from qgis.core import QgsMessageLog
 from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
 from PyQt4.QtGui import QAction, QIcon
 # Initialize Qt resources from file resources.py
@@ -45,19 +46,18 @@ class SlackTrees:
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
         # initialize locale
-        locale = QSettings().value('locale/userLocale')[0:2]
-        locale_path = os.path.join(
-            self.plugin_dir,
-            'i18n',
-            'SlackTrees_{}.qm'.format(locale))
-
-        if os.path.exists(locale_path):
-            self.translator = QTranslator()
-            self.translator.load(locale_path)
-
-            if qVersion() > '4.3.3':
-                QCoreApplication.installTranslator(self.translator)
-
+        # locale = QSettings().value('locale/userLocale')[0:2]
+        # locale_path = os.path.join(
+        #     self.plugin_dir,
+        #     'i18n',
+        #     'SlackTrees_{}.qm'.format(locale))
+        #
+        # if os.path.exists(locale_path):
+        #     self.translator = QTranslator()
+        #     self.translator.load(locale_path)
+        #
+        #     if qVersion() > '4.3.3':
+        #         QCoreApplication.installTranslator(self.translator)
 
         # Declare instance attributes
         self.actions = []
@@ -81,7 +81,6 @@ class SlackTrees:
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
         return QCoreApplication.translate('SlackTrees', message)
 
-
     def add_action(
         self,
         icon_path,
@@ -92,7 +91,8 @@ class SlackTrees:
         add_to_toolbar=True,
         status_tip=None,
         whats_this=None,
-        parent=None):
+        parent=None
+    ):
         """Add a toolbar icon to the toolbar.
 
         :param icon_path: Path to the icon for this action. Can be a resource
@@ -166,8 +166,8 @@ class SlackTrees:
             icon_path,
             text=self.tr(u'Find Slackline trees'),
             callback=self.run,
-            parent=self.iface.mainWindow())
-
+            parent=self.iface.mainWindow()
+        )
 
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
@@ -179,7 +179,6 @@ class SlackTrees:
         # remove the toolbar
         del self.toolbar
 
-
     def run(self):
         """Run method that performs all the real work"""
         # show the dialog
@@ -190,4 +189,13 @@ class SlackTrees:
         if result:
             # Do something useful here - delete the line containing pass and
             # substitute with your code.
+            """
+            GUI
+            - pre-fill layer selection with opened vector layers
+            - provide a button to open a vector layer from drive
+            - provide a input for spacing, max and min length (in meters)
+            - provide a a input for output lines layer
+            Process
+            - create all possible point pairs  
+            """
             pass
