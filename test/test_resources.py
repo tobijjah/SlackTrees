@@ -17,7 +17,6 @@ import unittest
 from PyQt4.QtGui import QIcon
 
 
-
 class SlackTreesDialogTest(unittest.TestCase):
     """Test rerources work."""
 
@@ -34,6 +33,7 @@ class SlackTreesDialogTest(unittest.TestCase):
         path = ':/plugins/SlackTrees/icon.png'
         icon = QIcon(path)
         self.assertFalse(icon.isNull())
+
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(SlackTreesResourcesTest)

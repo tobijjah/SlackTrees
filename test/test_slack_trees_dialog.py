@@ -13,12 +13,11 @@ __date__ = '2017-11-14'
 __copyright__ = 'Copyright 2017, Tobias Seydewitz'
 
 import unittest
-
 from PyQt4.QtGui import QDialogButtonBox, QDialog
-
 from slack_trees_dialog import SlackTreesDialog
-
 from utilities import get_qgis_app
+
+
 QGIS_APP = get_qgis_app()
 
 
@@ -47,6 +46,7 @@ class SlackTreesDialogTest(unittest.TestCase):
         button.click()
         result = self.dialog.result()
         self.assertEqual(result, QDialog.Rejected)
+
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(SlackTreesDialogTest)
