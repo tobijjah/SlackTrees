@@ -13,12 +13,11 @@ __date__ = '2017-11-14'
 __copyright__ = 'Copyright 2017, Tobias Seydewitz'
 
 import unittest
-
 from PyQt4.QtGui import QIcon
 
 
-class SlackTreesDialogTest(unittest.TestCase):
-    """Test rerources work."""
+class SlackTreesResourcesTest(unittest.TestCase):
+    """Test resources work."""
 
     def setUp(self):
         """Runs before each test."""
@@ -39,6 +38,3 @@ if __name__ == "__main__":
     suite = unittest.makeSuite(SlackTreesResourcesTest)
     runner = unittest.TextTestRunner(verbosity=2)
     runner.run(suite)
-
-
-
