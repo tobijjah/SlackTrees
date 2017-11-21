@@ -176,7 +176,7 @@ class QgisInterface(QObject):
         :param name: Name for the toolbar.
         :type name: str
         """
-        pass
+        return self
 
     def mapCanvas(self):
         """Return a pointer to the map canvas."""
