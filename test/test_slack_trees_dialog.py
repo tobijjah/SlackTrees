@@ -34,7 +34,6 @@ class SlackTreesDialogTest(unittest.TestCase):
 
     def test_dialog_ok(self):
         """Test we can click OK."""
-
         button = self.dialog.button_box.button(QDialogButtonBox.Ok)
         button.click()
         result = self.dialog.result()
@@ -52,4 +51,3 @@ if __name__ == "__main__":
     suite = unittest.makeSuite(SlackTreesDialogTest)
     runner = unittest.TextTestRunner(verbosity=2)
     runner.run(suite)
-
