@@ -102,3 +102,4 @@ ENV/
 .idea/
 README.txt
 README.html
+resources.py
