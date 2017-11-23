@@ -3,7 +3,7 @@ from slack_trees import SlackTrees
 from utilities import get_qgis_app
 
 
-QGISS_APP, CANVAS, IFACE, PARENT = get_qgis_app()
+QGIS_APP, CANVAS, IFACE, PARENT = get_qgis_app()
 
 
 class SlackTreesTest(unittest.TestCase):
