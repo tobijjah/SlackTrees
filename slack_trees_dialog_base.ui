@@ -1,65 +1,206 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>SlackTreesDialogBase</class>
- <widget class="QDialog" name="SlackTreesDialogBase" >
-  <property name="geometry" >
+ <widget class="QDialog" name="SlackTreesDialogBase">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>522</width>
+    <height>240</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>SlackTrees</string>
   </property>
-  <widget class="QDialogButtonBox" name="button_box" >
-   <property name="geometry" >
-    <rect>
-     <x>30</x>
-     <y>240</y>
-     <width>341</width>
-     <height>32</height>
-    </rect>
-   </property>
-   <property name="orientation" >
-    <enum>Qt::Horizontal</enum>
-   </property>
-   <property name="standardButtons" >
-    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-   </property>
-  </widget>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QLabel" name="InputLabel">
+     <property name="text">
+      <string>Input point layer</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1" colspan="5">
+    <widget class="QgsMapLayerComboBox" name="InputMapLayerComboBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="sizeAdjustPolicy">
+      <enum>QComboBox::AdjustToContents</enum>
+     </property>
+     <property name="filters">
+      <set>QgsMapLayerProxyModel::HasGeometry|QgsMapLayerProxyModel::LineLayer|QgsMapLayerProxyModel::NoGeometry|QgsMapLayerProxyModel::PluginLayer|QgsMapLayerProxyModel::PointLayer|QgsMapLayerProxyModel::PolygonLayer|QgsMapLayerProxyModel::VectorLayer</set>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="SpacingLabel">
+     <property name="text">
+      <string>Spacing</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QgsDoubleSpinBox" name="SpacingDoubleSpinBox"/>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="LengthLabel">
+     <property name="text">
+      <string>Length</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1" colspan="3">
+    <widget class="QLineEdit" name="OutputLIneEdit"/>
+   </item>
+   <item row="2" column="1">
+    <widget class="QgsDoubleSpinBox" name="LengthMinDoubleSpinBox"/>
+   </item>
+   <item row="2" column="2">
+    <widget class="QLabel" name="LengthMinLabel">
+     <property name="text">
+      <string>min</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="3" colspan="2">
+    <widget class="QgsDoubleSpinBox" name="LengthMaxDoubleSpinBox"/>
+   </item>
+   <item row="2" column="5">
+    <widget class="QLabel" name="LengthMaxLabel">
+     <property name="text">
+      <string>max</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="ExcludeLabel">
+     <property name="text">
+      <string>Exclude</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QgsFieldComboBox" name="ExcludeFieldComboBox"/>
+   </item>
+   <item row="3" column="2" colspan="2">
+    <widget class="QComboBox" name="ExcludeComboBox"/>
+   </item>
+   <item row="3" column="4" colspan="2">
+    <widget class="QLineEdit" name="ExcludeLineEdit"/>
+   </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="OutputLabel">
+     <property name="text">
+      <string>Output lines</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="4" colspan="2">
+    <widget class="QPushButton" name="OutputBrowseButton">
+     <property name="text">
+      <string>Browse</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0">
+    <widget class="QCheckBox" name="CanvasCheckBox">
+     <property name="text">
+      <string>Add to canvas</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="0">
+    <widget class="QDialogButtonBox" name="HelpButton">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Help</set>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="1" colspan="3">
+    <widget class="QProgressBar" name="ProgressBar">
+     <property name="value">
+      <number>0</number>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="4" colspan="2">
+    <widget class="QDialogButtonBox" name="CancelOkButtons">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QgsDoubleSpinBox</class>
+   <extends>QDoubleSpinBox</extends>
+   <header>qgsdoublespinbox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QgsFieldComboBox</class>
+   <extends>QComboBox</extends>
+   <header>qgsfieldcombobox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QgsMapLayerComboBox</class>
+   <extends>QComboBox</extends>
+   <header>qgsmaplayercombobox.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>
-   <sender>button_box</sender>
+   <sender>CancelOkButtons</sender>
    <signal>accepted()</signal>
    <receiver>SlackTreesDialogBase</receiver>
    <slot>accept()</slot>
    <hints>
-    <hint type="source_label" >
-     <x>248</x>
-     <y>254</y>
+    <hint type="sourcelabel">
+     <x>461</x>
+     <y>230</y>
     </hint>
-    <hint type="destination_label" >
-     <x>157</x>
-     <y>274</y>
+    <hint type="destinationlabel">
+     <x>521</x>
+     <y>239</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>button_box</sender>
+   <sender>CancelOkButtons</sender>
    <signal>rejected()</signal>
    <receiver>SlackTreesDialogBase</receiver>
    <slot>reject()</slot>
    <hints>
-    <hint type="source_label" >
-     <x>316</x>
-     <y>260</y>
+    <hint type="sourcelabel">
+     <x>461</x>
+     <y>230</y>
     </hint>
-    <hint type="destination_label" >
-     <x>286</x>
-     <y>274</y>
+    <hint type="destinationlabel">
+     <x>521</x>
+     <y>239</y>
     </hint>
    </hints>
   </connection>
