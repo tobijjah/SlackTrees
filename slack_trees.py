@@ -60,6 +60,7 @@ class SlackTrees:
         #         QCoreApplication.installTranslator(self.translator)
 
         # Declare instance attributes
+        self.dlg = None
         self.actions = []
         self.menu = self.tr(u'&SlackTrees')
         # TODO: We are going to let the user set this up in a future iteration
