@@ -80,6 +80,7 @@ def circle(x_center, y_center, radius, res=10):
         Computed x and y coordinate
     """
     step = 2 / res
+
     for i in range(res):
         part = i * step
         x = x_center + radius * math.cos(part * math.pi)
