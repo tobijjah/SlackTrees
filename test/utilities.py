@@ -2,6 +2,7 @@
 """Common functionality used by regression tests."""
 
 import sys
+import math
 import logging
 
 
@@ -59,3 +60,28 @@ def get_qgis_app():
         IFACE = QgisInterface(CANVAS)
 
     return QGIS_APP, CANVAS, IFACE, PARENT
+
+
+def circle(x_center, y_center, radius, res=10):
+    """
+    Generator function for compute circle x,y coordinates from
+    a radius and the provided x and y circle center coordinates.
+
+    :param x_center: int, float
+        X center of the circle
+    :param y_center: int, float
+        Y center of the circle
+    :param radius: int, float
+        Circle radius
+    :param res: int
+        Changes the total number of coordinates which
+        should be computed. Default is ten.
+    :return: tuple
+        Computed x and y coordinate
+    """
+    step = 2 / res
+    for i in range(res):
+        part = i * step
+        x = x_center + radius * math.cos(part * math.pi)
+        y = y_center + radius * math.sin(part * math.pi)
+        yield x, y

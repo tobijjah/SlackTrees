@@ -45,7 +45,20 @@
     </widget>
    </item>
    <item row="1" column="1">
-    <widget class="QgsDoubleSpinBox" name="SpacingDoubleSpinBox"/>
+    <widget class="QgsDoubleSpinBox" name="SpacingDoubleSpinBox">
+     <property name="decimals">
+      <number>1</number>
+     </property>
+     <property name="maximum">
+      <double>50.000000000000000</double>
+     </property>
+     <property name="value">
+      <double>2.000000000000000</double>
+     </property>
+     <property name="showClearButton">
+      <bool>true</bool>
+     </property>
+    </widget>
    </item>
    <item row="2" column="0">
     <widget class="QLabel" name="LengthLabel">
@@ -55,10 +68,27 @@
     </widget>
    </item>
    <item row="4" column="1" colspan="3">
-    <widget class="QLineEdit" name="OutputLIneEdit"/>
+    <widget class="QLineEdit" name="OutputLIneEdit">
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+    </widget>
    </item>
    <item row="2" column="1">
-    <widget class="QgsDoubleSpinBox" name="LengthMinDoubleSpinBox"/>
+    <widget class="QgsDoubleSpinBox" name="LengthMinDoubleSpinBox">
+     <property name="decimals">
+      <number>1</number>
+     </property>
+     <property name="maximum">
+      <double>200.000000000000000</double>
+     </property>
+     <property name="value">
+      <double>10.000000000000000</double>
+     </property>
+     <property name="showClearButton">
+      <bool>true</bool>
+     </property>
+    </widget>
    </item>
    <item row="2" column="2">
     <widget class="QLabel" name="LengthMinLabel">
@@ -68,7 +98,23 @@
     </widget>
    </item>
    <item row="2" column="3" colspan="2">
-    <widget class="QgsDoubleSpinBox" name="LengthMaxDoubleSpinBox"/>
+    <widget class="QgsDoubleSpinBox" name="LengthMaxDoubleSpinBox">
+     <property name="decimals">
+      <number>1</number>
+     </property>
+     <property name="maximum">
+      <double>200.000000000000000</double>
+     </property>
+     <property name="singleStep">
+      <double>1.000000000000000</double>
+     </property>
+     <property name="value">
+      <double>50.000000000000000</double>
+     </property>
+     <property name="showClearButton">
+      <bool>true</bool>
+     </property>
+    </widget>
    </item>
    <item row="2" column="5">
     <widget class="QLabel" name="LengthMaxLabel">
@@ -88,7 +134,38 @@
     <widget class="QgsFieldComboBox" name="ExcludeFieldComboBox"/>
    </item>
    <item row="3" column="2" colspan="2">
-    <widget class="QComboBox" name="ExcludeComboBox"/>
+    <widget class="QComboBox" name="ExcludeComboBox">
+     <item>
+      <property name="text">
+       <string>&gt;</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>&lt;</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>&gt;=</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>&lt;=</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>==</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>!=</string>
+      </property>
+     </item>
+    </widget>
    </item>
    <item row="3" column="4" colspan="2">
     <widget class="QLineEdit" name="ExcludeLineEdit"/>
@@ -111,6 +188,9 @@
     <widget class="QCheckBox" name="CanvasCheckBox">
      <property name="text">
       <string>Add to canvas</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
@@ -179,8 +259,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>461</x>
-     <y>230</y>
+     <x>337</x>
+     <y>204</y>
     </hint>
     <hint type="destinationlabel">
      <x>521</x>
