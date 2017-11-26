@@ -38,3 +38,22 @@ class SlackTreesDialog(QtGui.QDialog, FORM_CLASS):
         # http://qt-project.org/doc/qt-4.8/designer-using-a-ui-file.html
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
+
+        self._layer_fields()
+
+        self.attach_events()
+
+    def attach_events(self):
+        self.InputMapLayerComboBox.layerChanged.connect(self._layer_fields)
+        self.HelpButton.clicked.connect(self._open_help)
+        self.OutputBrowseButton.clicked.connect(self._output_dialog)
+
+    def _layer_fields(self):
+        current_layer = self.InputMapLayerComboBox.currentLayer()
+        self.ExcludeFieldComboBox.setLayer(current_layer)
+
+    def _open_help(self):
+        pass
+
+    def _output_dialog(self):
+        pass
