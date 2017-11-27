@@ -1,9 +1,17 @@
 # coding=utf-8
 """Common functionality used by regression tests."""
-
+import os
 import sys
 import math
 import logging
+from qgis.core import (QgsFields,
+                       QgsField,
+                       QgsFeature,
+                       QgsPoint,
+                       QgsCoordinateReferenceSystem,
+                       QgsGeometry,
+                       QgsWKBTypes
+                       )
 
 
 LOGGER = logging.getLogger('QGIS')
@@ -22,7 +30,6 @@ def get_qgis_app():
 
     If QGIS is already running the handle to that app will be returned.
     """
-
     try:
         from PyQt4 import QtGui, QtCore
         from qgis.core import QgsApplication
@@ -32,6 +39,9 @@ def get_qgis_app():
         return None, None, None, None
 
     global QGIS_APP  # pylint: disable=W0603
+    global PARENT  # pylint: disable=W0603
+    global CANVAS  # pylint: disable=W0603
+    global IFACE  # pylint: disable=W0603
 
     if QGIS_APP is None:
         gui_flag = True  # All test will run qgis in gui mode
@@ -42,18 +52,15 @@ def get_qgis_app():
         s = QGIS_APP.showSettings()
         LOGGER.debug(s)
 
-    global PARENT  # pylint: disable=W0603
     if PARENT is None:
         # noinspection PyPep8Naming
         PARENT = QtGui.QWidget()
 
-    global CANVAS  # pylint: disable=W0603
     if CANVAS is None:
         # noinspection PyPep8Naming
         CANVAS = QgsMapCanvas(PARENT)
         CANVAS.resize(QtCore.QSize(400, 400))
 
-    global IFACE  # pylint: disable=W0603
     if IFACE is None:
         # QgisInterface is a stub implementation of the QGIS plugin interface
         # noinspection PyPep8Naming
@@ -64,7 +71,7 @@ def get_qgis_app():
 
 def circle(x_center, y_center, radius, res=10):
     """
-    Generator function for compute circle x,y coordinates from
+    Generator function for computing circle x,y coordinates from
     a radius and the provided x and y circle center coordinates.
 
     :param x_center: int, float
@@ -79,10 +86,23 @@ def circle(x_center, y_center, radius, res=10):
     :return: tuple
         Computed x and y coordinate
     """
-    step = 2 / res
+    step = 2 / float(res)
 
     for i in range(res):
         part = i * step
         x = x_center + radius * math.cos(part * math.pi)
         y = y_center + radius * math.sin(part * math.pi)
-        yield x, y
+        yield round(x, 6), round(y, 6)
+
+
+def make_layer():
+    fields = QgsFields()
+    fields.append(QgsField(''))
+
+
+if __name__ == '__main__':
+    """
+    lat/y 52.0
+    long/x 13.0
+    """
+    get_qgis_app()
