@@ -22,6 +22,7 @@
 """
 import os
 from PyQt4 import QtGui, uic
+from qgis.utils import showPluginHelp
 
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
