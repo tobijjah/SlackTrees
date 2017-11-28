@@ -3,14 +3,17 @@
 import os
 import sys
 import math
+import random
 import logging
+from PyQt4.QtCore import QVariant
 from qgis.core import (QgsFields,
                        QgsField,
                        QgsFeature,
                        QgsPoint,
                        QgsCoordinateReferenceSystem,
                        QgsGeometry,
-                       QgsWKBTypes
+                       QgsWKBTypes,
+                       QgsVectorFileWriter
                        )
 
 
@@ -95,14 +98,88 @@ def circle(x_center, y_center, radius, res=10):
         yield round(x, 6), round(y, 6)
 
 
-def make_layer():
+def make_fields(field_definitions):
+    """
+    Convenience method for creating QGIS field definitions.
+
+    :param field_definitions: list(dict, ...)
+        Must be a list of dictionaries each dictionary must contain
+        the attributes name and type assigned with string values.
+        The type field provides the following choices: int, str, double,
+        float, date
+    :return: Qgs.Fields
+        A Qgs.Fields object comprising the created field instances
+    """
+    types = {
+        'int': QVariant.Int,
+        'str': QVariant.String,
+        'double': QVariant.Double,
+        'float': QVariant.Double,
+        'date': QVariant.Date
+    }
+
     fields = QgsFields()
-    fields.append(QgsField(''))
+    for dic in field_definitions:
+        name = dic.get('name')
+        typ = dic.get('type')
+        qvar = types.get(typ)
+        assert name is not None and typ is not None and qvar is not None
+        fields.append(QgsField(name, qvar))
+
+    return fields
+
+
+def make_test_layer(path):
+    species = ['oak', 'fur', 'beech', 'pine', 'spruce', 'lime', 'alder', 'chestnut', 'birch', 'poplar']
+    coords = [
+        {
+            # WGS84, unit degrees
+            'epsg': 4326,
+            'x': 13.0246733,
+            'y': 52.4022183,
+            'r': 0.5
+        },
+        {
+            # WGS84/ UTM zone 33N, unit meter
+            'epsg': 32633,
+            'x': 365618.25,
+            'y': 5807611.31,
+            'r': 20.0
+        },
+        {
+            # WGS 84 / Pseudo-Mercator, unit meter
+            'epsg': 3857,
+            'x': 1449900.0,
+            'y': 6873181.0,
+            'r': 20.0
+        },
+    ]
+    fields = make_fields([
+        {'name': 'species', 'type': 'str'},
+        {'name': 'bhd', 'type': 'float'},
+        {'name': 'volume', 'type': 'float'},
+        {'name': 'random', 'type': 'int'}
+    ])
+
+    coord = random.choice(coords)
+    crs = QgsCoordinateReferenceSystem()
+    crs.createFromId(coord['epsg'])
+    layer = QgsVectorFileWriter(path, "UTF-8", fields, QgsWKBTypes.Point, crs, "ESRI Shapefile")
+
+    for circle_coor in circle(coord['x'], coord['y'], coord['r'], 20):
+        specie = random.choice(species)
+        bhd = round(random.uniform(5.0, 25.0), 2)
+        volume = round(math.pi * bhd, 2)
+        rand = random.randint(1, 4)
+
+        point = QgsPoint(*circle_coor)
+        feature = QgsFeature()
+        feature.setGeometry(QgsGeometry.fromPoint(point))
+        feature.setAttributes([specie, bhd, volume, rand])
+        layer.addFeature(feature)
+
+    del layer
 
 
 if __name__ == '__main__':
-    """
-    lat/y 52.0
-    long/x 13.0
-    """
-    get_qgis_app()
+    pass
