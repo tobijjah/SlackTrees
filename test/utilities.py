@@ -13,7 +13,8 @@ from qgis.core import (QgsFields,
                        QgsCoordinateReferenceSystem,
                        QgsGeometry,
                        QgsWKBTypes,
-                       QgsVectorFileWriter
+                       QgsVectorFileWriter,
+                       QgsVectorLayer
                        )
 
 
@@ -130,6 +131,24 @@ def make_fields(field_definitions):
 
 
 def make_test_layer(path):
+    """
+    Creates a test vector layer with ESRI shapefile format with point geometry.
+    The layer has four fields with the following properties:
+    species: str by random choice from a list (most common tree species)
+    bhd: float random between 5.0 - 25.0
+    volume: float calculated from bhd via bhd * pi
+    random: int between 1 - 4
+    Coordinate reference system of the layer is chosen randomly from the following choices:
+    WGS84, WGS84/Pseudo-Mercator or WGS84/UTMzone 33
+    In total the layer contains 20 features and each point is located in a circular manner
+    around a center x,y coordinate. The circle center is located in Potsdam and the circle
+    radius has approximately 10 meter.
+
+    :param path: str
+        Path where the test point vector layer should be stored
+    :return: tuple(QgsVectorLayer, str)
+        QgsVectorLayer instance of the created layer and the path where the layer was created
+    """
     species = ['oak', 'fur', 'beech', 'pine', 'spruce', 'lime', 'alder', 'chestnut', 'birch', 'poplar']
     coords = [
         {
@@ -178,7 +197,17 @@ def make_test_layer(path):
         feature.setAttributes([specie, bhd, volume, rand])
         layer.addFeature(feature)
 
-    del layer
+    del layer  # flush to disk (suggestion by qgis cookbook)
+    return QgsVectorLayer(path, 'test_layer', 'ogr'), path
+
+
+def delete_layer(path):
+    head, tail = os.path.split(path)
+    name, ext = os.path.splitext(tail)
+    path = os.path.join(head, name)
+
+    for ext in ['.cpg', '.dbf', '.shp', '.prj', '.qpj', '.shx']:
+        os.remove(path + ext)
 
 
 if __name__ == '__main__':
