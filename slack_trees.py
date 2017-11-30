@@ -32,6 +32,14 @@ import os.path
 
 class SlackTrees:
     """QGIS Plugin Implementation."""
+    COMPARES = {
+        '<': lambda val, const: val < const,
+        '>': lambda val, const: val > const,
+        '<=': lambda val, const: val <= const,
+        '>=': lambda val, const: val >= const,
+        '==': lambda val, const: val == const,
+        '!=': lambda val, const: val != const
+    }
 
     def __init__(self, iface):
         """Constructor.
@@ -200,3 +208,25 @@ class SlackTrees:
             - create all possible point pairs  
             """
             pass
+
+    def features(self, field_name, operator, const):
+        attr_idx = self.layer.fieldNameIndex(field_name)
+
+        if attr_idx > -1:
+            for feature in self._get_filtered_features(attr_idx, operator, const):
+                yield feature
+        else:
+            for feature in self._get_unfiltered_features():
+                yield feature
+
+    def _get_unfiltered_features(self):
+        for feature in self.layer.getFeatures():
+            yield feature
+
+    def _get_filtered_features(self, attr_idx, operator, const):
+        compare_func = self.__class__.COMPARES.get(operator)
+
+        for feature in self.layer.getFeatures():
+            val = feature.attributes()[attr_idx]
+            if compare_func(val, const):
+                yield feature
