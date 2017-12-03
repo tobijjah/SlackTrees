@@ -14,8 +14,7 @@ from qgis.core import (QgsFields,
                        QgsGeometry,
                        QgsWKBTypes,
                        QgsVectorFileWriter,
-                       QgsVectorLayer
-                       )
+                       QgsVectorLayer)
 
 
 LOGGER = logging.getLogger('QGIS')
