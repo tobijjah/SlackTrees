@@ -1,6 +1,7 @@
 import os
 import unittest
 from slack_trees import SlackTrees
+from qgis.core import QgsFeatureRequest
 from utilities import get_qgis_app, make_test_layer, delete_layer
 
 
@@ -20,10 +21,16 @@ class SlackTreesTest(unittest.TestCase):
         delete_layer(self.path)
 
     def test_get_unfiltered_features(self):
-        expected_length = len(list(self.layer.getFeatures()))
-        actual_length = len(list(self.plugin._get_unfiltered_features()))
+        expected = list(self.layer.getFeatures())
+        actual = list(self.plugin._get_unfiltered_features())
 
-        self.assertEqual(actual_length, expected_length)
+        self.assertEqual(len(actual), len(expected))
+
+    def test_get_filtered_features(self):
+        expected = list(self.layer.getFeatures(QgsFeatureRequest().setFilterExpression(u'"random" = 4')))
+        actual = list(self.plugin._get_filtered_features(3, '==', 4))
+
+        self.assertEqual(len(actual), len(expected))
 
 
 if __name__ == "__main__":
