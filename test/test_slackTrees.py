@@ -32,6 +32,20 @@ class SlackTreesTest(unittest.TestCase):
 
         self.assertEqual(len(actual), len(expected))
 
+    def test_get_features(self):
+        all_features = list(self.plugin._get_features('', '', ''))
+        unknown_field = list(self.plugin._get_features('test', '==', 'test'))
+        expected = list(self.layer.getFeatures(QgsFeatureRequest().setFilterExpression(u'"random" = 4')))
+        known_field = list(self.plugin._get_filtered_features(3, '==', 4))
+
+        self.assertEqual(len(all_features), 20)
+        self.assertEqual(len(unknown_field), 20)
+        self.assertEqual(len(known_field), len(expected))
+
+    def test_reproject_features(self):
+        feature_generator = self.layer.getFeatures()
+        print self.layer.crs()
+
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(SlackTreesTest)
