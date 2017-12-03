@@ -227,6 +227,6 @@ class SlackTrees:
         compare_func = self.__class__.COMPARES.get(operator)
 
         for feature in self.layer.getFeatures():
-            val = feature.attributes()[attr_idx]
+            val = feature[attr_idx]
             if compare_func(val, const):
                 yield feature
