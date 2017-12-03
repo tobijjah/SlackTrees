@@ -139,7 +139,7 @@ def make_test_layer(path):
     volume: float calculated from bhd via bhd * pi
     random: int between 1 - 4
     Coordinate reference system of the layer is chosen randomly from the following choices:
-    WGS84, WGS84/Pseudo-Mercator or WGS84/UTMzone 33
+    WGS84, WGS84/Pseudo-Mercator or WGS84/UTM zone 33
     In total the layer contains 20 features and each point is located in a circular manner
     around a center x,y coordinate. The circle center is located in Potsdam and the circle
     radius has approximately 10 meter.
