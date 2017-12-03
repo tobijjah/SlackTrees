@@ -20,13 +20,15 @@
  *                                                                         *
  ***************************************************************************/
 """
-from qgis.core import QgsMessageLog
 from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
 from PyQt4.QtGui import QAction, QIcon
 # Initialize Qt resources from file resources.py
 import resources
 # Import the code for the dialog
 from slack_trees_dialog import SlackTreesDialog
+from qgis.core import (QgsCoordinateReferenceSystem,
+                       QgsCoordinateTransform,
+                       QgsFeature)
 import os.path
 
 
@@ -40,6 +42,7 @@ class SlackTrees:
         '==': lambda val, const: val == const,
         '!=': lambda val, const: val != const
     }
+    WGS84 = 4326
 
     def __init__(self, iface):
         """Constructor.
@@ -69,6 +72,7 @@ class SlackTrees:
 
         # Declare instance attributes
         self.dlg = None
+        self.layer = None
         self.actions = []
         self.menu = self.tr(u'&SlackTrees')
         # TODO: We are going to let the user set this up in a future iteration
@@ -196,20 +200,9 @@ class SlackTrees:
         result = self.dlg.exec_()
         # See if OK was pressed
         if result:
-            # Do something useful here - delete the line containing pass and
-            # substitute with your code.
-            """
-            GUI
-            - pre-fill layer selection with opened vector layers
-            - provide a button to open a vector layer from drive
-            - provide a input for spacing, max and min length (in meters)
-            - provide a a input for output lines layer
-            Process
-            - create all possible point pairs  
-            """
             pass
 
-    def features(self, field_name, operator, const):
+    def _get_features(self, field_name, operator, const):
         attr_idx = self.layer.fieldNameIndex(field_name)
 
         if attr_idx > -1:
@@ -230,3 +223,7 @@ class SlackTrees:
             val = feature[attr_idx]
             if compare_func(val, const):
                 yield feature
+
+    def _reproject_features(self, feature_generator):
+        for feature in feature_generator:
+            pass
