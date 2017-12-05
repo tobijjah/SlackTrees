@@ -22,15 +22,15 @@ class SlackTreesTest(unittest.TestCase):
 
     def test_get_unfiltered_features(self):
         expected = list(self.layer.getFeatures())
-        actual = list(self.plugin._get_unfiltered_features())
+        result = list(self.plugin._get_unfiltered_features())
 
-        self.assertEqual(len(actual), len(expected))
+        self.assertEqual(len(result), len(expected))
 
     def test_get_filtered_features(self):
         expected = list(self.layer.getFeatures(QgsFeatureRequest().setFilterExpression(u'"random" = 4')))
-        actual = list(self.plugin._get_filtered_features(3, '==', 4))
+        result = list(self.plugin._get_filtered_features(3, '==', 4))
 
-        self.assertEqual(len(actual), len(expected))
+        self.assertEqual(len(result), len(expected))
 
     def test_get_features(self):
         all_features = list(self.plugin._get_features('', '', ''))
