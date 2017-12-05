@@ -46,6 +46,13 @@ class SlackTreesDialogTest(unittest.TestCase):
         result = self.dialog.result()
         self.assertEqual(result, QDialog.Rejected)
 
+    def test_progressbar_update(self):
+        expected = 10
+        self.dialog._update_progressbar(10)
+        result = self.dialog.ProgressBar.value()
+
+        self.assertEqual(expected, result)
+
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(SlackTreesDialogTest)

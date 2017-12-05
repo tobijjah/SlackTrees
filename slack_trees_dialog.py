@@ -39,9 +39,7 @@ class SlackTreesDialog(QtGui.QDialog, FORM_CLASS):
         # http://qt-project.org/doc/qt-4.8/designer-using-a-ui-file.html
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
-
         self._layer_fields()
-
         self.attach_events()
 
     def attach_events(self):
@@ -58,3 +56,6 @@ class SlackTreesDialog(QtGui.QDialog, FORM_CLASS):
 
     def _output_dialog(self):
         pass
+
+    def _update_progressbar(self, progress):
+        self.ProgressBar.setValue(progress)
