@@ -227,3 +227,14 @@ class SlackTrees:
     def _reproject_features(self, feature_generator):
         for feature in feature_generator:
             pass
+
+    def _latlon_to_epsg(self, x, y):
+        if x < -180 or x > 180 or y < -90 or y > 90:
+            msg = 'lat/x {:f} and lon/y {:f} overflowing WGS84 coordinates system'.format(y, x)
+            raise ValueError(msg)
+
+        prefix = '326' if y >= 0 else '327'
+        suffix = int(((x + 180) // 6) + 1)
+        epsg = prefix + '{:02d}'.format(suffix)
+
+        return int(epsg)
