@@ -46,6 +46,21 @@ class SlackTreesTest(unittest.TestCase):
         feature_generator = self.layer.getFeatures()
         print self.layer.crs()
 
+    def test_latlon_to_epsg(self):
+        result = self.plugin._latlon_to_epsg(-177.3456, 56.2423)
+        expected = 32601
+
+        self.assertEqual(result, expected)
+
+    def test_latlon_to_epsg_raises(self):
+        x, y = 10, -91
+        msg = 'lat/x {:f} and lon/y {:f} overflowing WGS84 coordinates system'.format(y, x)
+
+        with self.assertRaises(ValueError) as err:
+            self.plugin._latlon_to_epsg(x, y)
+
+        self.assertEqual(str(err.exception), msg)
+
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(SlackTreesTest)
