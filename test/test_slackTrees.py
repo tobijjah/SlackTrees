@@ -42,10 +42,6 @@ class SlackTreesTest(unittest.TestCase):
         self.assertEqual(len(unknown_field), 20)
         self.assertEqual(len(known_field), len(expected))
 
-    def test_reproject_features(self):
-        feature_generator = self.layer.getFeatures()
-        print self.layer.crs()
-
     def test_latlon_to_epsg(self):
         result = self.plugin._latlon_to_epsg(-177.3456, 56.2423)
         expected = 32601
@@ -60,6 +56,15 @@ class SlackTreesTest(unittest.TestCase):
             self.plugin._latlon_to_epsg(x, y)
 
         self.assertEqual(str(err.exception), msg)
+
+    def test_reproject_features(self):
+        feature_generator = self.layer.getFeatures()
+
+    def test_reproject_feature(self):
+        pass
+
+    def test_valid_bounds(self):
+        pass
 
 
 if __name__ == "__main__":
