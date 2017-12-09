@@ -28,7 +28,8 @@ import resources
 from slack_trees_dialog import SlackTreesDialog
 from qgis.core import (QgsCoordinateReferenceSystem,
                        QgsCoordinateTransform,
-                       QgsFeature)
+                       QgsFeature,
+                       QgsGeometry)
 import os.path
 
 
@@ -42,7 +43,8 @@ class SlackTrees:
         '==': lambda val, const: val == const,
         '!=': lambda val, const: val != const
     }
-    WGS84 = 4326
+    WGS84 = QgsCoordinateReferenceSystem()
+    WGS84.createFromId(4326)
 
     def __init__(self, iface):
         """Constructor.
@@ -225,8 +227,33 @@ class SlackTrees:
                 yield feature
 
     def _reproject_features(self, feature_generator):
+        if not self._valid_bounds():
+            msg = ''.format()
+            raise ValueError(msg)
+
+        layer_crs = self.layer.crs()
+        dst_crs = None
+
         for feature in feature_generator:
-            pass
+            if layer_crs != self.__class__.WGS84:
+                feature = self._reproject_feature(feature, layer_crs, self.__class__.WGS84)
+
+    def _reproject_feature(self, feature, src_crs, dst_crs):
+        out_feature = QgsFeature()
+        crs_transform = QgsCoordinateTransform(src_crs, dst_crs)
+
+        geometry = feature.geometry()
+        geometry.transform(crs_transform)
+
+        out_feature.setGeometry(geometry)
+        out_feature.setAttributes(feature.attributes())
+
+        return out_feature
+
+    def _valid_bounds(self):
+        self.layer.selectAll()
+        bounds = self.layer.boundingBoxOfSelected()
+        geometry = QgsGeometry.fromRect(bounds)
 
     def _latlon_to_epsg(self, x, y):
         if x < -180 or x > 180 or y < -90 or y > 90:
