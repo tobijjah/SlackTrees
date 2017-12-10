@@ -57,8 +57,14 @@ class SlackTreesTest(unittest.TestCase):
 
         self.assertEqual(str(err.exception), msg)
 
+    # TODO test on valid re-projection
     def test_reproject_features(self):
         feature_generator = self.layer.getFeatures()
+
+        expected = list(self.layer.getFeatures())
+        result = list(self.plugin._reproject_features(feature_generator))
+
+        self.assertEqual(len(result), len(expected))
 
     def test_reproject_feature(self):
         pass

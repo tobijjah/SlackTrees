@@ -29,7 +29,8 @@ from slack_trees_dialog import SlackTreesDialog
 from qgis.core import (QgsCoordinateReferenceSystem,
                        QgsCoordinateTransform,
                        QgsFeature,
-                       QgsGeometry)
+                       QgsGeometry,
+                       QgsMessageLog)
 import os.path
 
 
@@ -194,6 +195,7 @@ class SlackTrees:
         # remove the toolbar
         del self.toolbar
 
+    # TODO attach to layercombobox event handler (update self.layer)
     def run(self):
         """Run method that performs all the real work"""
         # show the dialog
@@ -226,17 +228,22 @@ class SlackTrees:
             if compare_func(val, const):
                 yield feature
 
+    # TODO if layer already in WGS84/ UTM just yield
     def _reproject_features(self, feature_generator):
         if not self._valid_bounds():
             msg = 'Layer bounds spanning multiple coordinates systems'
             raise ValueError(msg)
 
         layer_crs = self.layer.crs()
-        dst_crs = None
 
         for feature in feature_generator:
             if layer_crs != self.__class__.WGS84:
                 feature = self._reproject_feature(feature, layer_crs, self.__class__.WGS84)
+
+            epsg = self._latlon_to_epsg(feature.geometry().boundingBox().xMinimum(),
+                                        feature.geometry().boundingBox().yMinimum())
+            dst_crs = QgsCoordinateReferenceSystem(epsg)
+
             yield self._reproject_feature(feature, self.__class__.WGS84, dst_crs)
 
     def _reproject_feature(self, feature, src_crs, dst_crs):
