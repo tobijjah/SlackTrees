@@ -255,6 +255,17 @@ class SlackTrees:
         bounds = self.layer.boundingBoxOfSelected()
         geometry = QgsGeometry.fromRect(bounds)
 
+        if self.layer.crs() != self.__class__.WGS84:
+            feature = QgsFeature()
+            feature.setGeometry(geometry)
+            feature = self._reproject_feature(feature, self.layer.crs(), self.__class__.WGS84)
+            geometry = feature.geometry()
+
+        bottom_left = (geometry.boundingBox().xMinimum(), geometry.boundingBox().yMinimum())
+        top_right = (geometry.boundingBox().xMaximum(), geometry.boundingBox().yMaximum())
+
+        return self._latlon_to_epsg(*bottom_left) == self._latlon_to_epsg(*top_right)
+
     def _latlon_to_epsg(self, x, y):
         if x < -180 or x > 180 or y < -90 or y > 90:
             msg = 'lat/x {:f} and lon/y {:f} overflowing WGS84 coordinates system'.format(y, x)

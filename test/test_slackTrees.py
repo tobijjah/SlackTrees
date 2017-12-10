@@ -63,8 +63,11 @@ class SlackTreesTest(unittest.TestCase):
     def test_reproject_feature(self):
         pass
 
+    # TODO test with invalid layer
     def test_valid_bounds(self):
-        pass
+        result = self.plugin._valid_bounds()
+
+        self.assertEqual(result, True)
 
 
 if __name__ == "__main__":
