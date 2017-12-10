@@ -228,7 +228,7 @@ class SlackTrees:
 
     def _reproject_features(self, feature_generator):
         if not self._valid_bounds():
-            msg = ''.format()
+            msg = 'Layer bounds spanning multiple coordinates systems'
             raise ValueError(msg)
 
         layer_crs = self.layer.crs()
@@ -237,6 +237,7 @@ class SlackTrees:
         for feature in feature_generator:
             if layer_crs != self.__class__.WGS84:
                 feature = self._reproject_feature(feature, layer_crs, self.__class__.WGS84)
+            yield self._reproject_feature(feature, self.__class__.WGS84, dst_crs)
 
     def _reproject_feature(self, feature, src_crs, dst_crs):
         out_feature = QgsFeature()
@@ -251,20 +252,23 @@ class SlackTrees:
         return out_feature
 
     def _valid_bounds(self):
-        self.layer.selectAll()
-        bounds = self.layer.boundingBoxOfSelected()
-        geometry = QgsGeometry.fromRect(bounds)
+        bounds = self._bounding_box()
 
         if self.layer.crs() != self.__class__.WGS84:
             feature = QgsFeature()
-            feature.setGeometry(geometry)
+            feature.setGeometry(bounds)
             feature = self._reproject_feature(feature, self.layer.crs(), self.__class__.WGS84)
-            geometry = feature.geometry()
+            bounds = feature.geometry()
 
-        bottom_left = (geometry.boundingBox().xMinimum(), geometry.boundingBox().yMinimum())
-        top_right = (geometry.boundingBox().xMaximum(), geometry.boundingBox().yMaximum())
+        bottom_left = (bounds.boundingBox().xMinimum(), bounds.boundingBox().yMinimum())
+        top_right = (bounds.boundingBox().xMaximum(), bounds.boundingBox().yMaximum())
 
         return self._latlon_to_epsg(*bottom_left) == self._latlon_to_epsg(*top_right)
+
+    def _bounding_box(self):
+        self.layer.selectAll()
+        bounds = self.layer.boundingBoxOfSelected()
+        return QgsGeometry.fromRect(bounds)
 
     def _latlon_to_epsg(self, x, y):
         if x < -180 or x > 180 or y < -90 or y > 90:
