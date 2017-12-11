@@ -32,6 +32,7 @@ from qgis.core import (QgsCoordinateReferenceSystem,
                        QgsGeometry,
                        QgsMessageLog)
 import os.path
+import re
 
 
 class SlackTrees:
@@ -228,23 +229,26 @@ class SlackTrees:
             if compare_func(val, const):
                 yield feature
 
-    # TODO if layer already in WGS84/ UTM just yield
     def _reproject_features(self, feature_generator):
         if not self._valid_bounds():
-            msg = 'Layer bounds spanning multiple coordinates systems'
+            msg = 'Layer bounds {} {} spanning multiple  coordinates systems'
             raise ValueError(msg)
 
         layer_crs = self.layer.crs()
 
-        for feature in feature_generator:
-            if layer_crs != self.__class__.WGS84:
-                feature = self._reproject_feature(feature, layer_crs, self.__class__.WGS84)
+        if bool(re.match(r'(326|327)\d{2}', '')):
+            for feature in feature_generator:
+                yield feature
+        else:
+            for feature in feature_generator:
+                if layer_crs != self.__class__.WGS84:
+                    feature = self._reproject_feature(feature, layer_crs, self.__class__.WGS84)
 
-            epsg = self._latlon_to_epsg(feature.geometry().boundingBox().xMinimum(),
-                                        feature.geometry().boundingBox().yMinimum())
-            dst_crs = QgsCoordinateReferenceSystem(epsg)
+                epsg = self._latlon_to_epsg(feature.geometry().boundingBox().xMinimum(),
+                                            feature.geometry().boundingBox().yMinimum())
+                dst_crs = QgsCoordinateReferenceSystem(epsg)
 
-            yield self._reproject_feature(feature, self.__class__.WGS84, dst_crs)
+                yield self._reproject_feature(feature, self.__class__.WGS84, dst_crs)
 
     def _reproject_feature(self, feature, src_crs, dst_crs):
         out_feature = QgsFeature()
