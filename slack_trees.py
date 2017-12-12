@@ -45,8 +45,7 @@ class SlackTrees:
         '==': lambda val, const: val == const,
         '!=': lambda val, const: val != const
     }
-    WGS84 = QgsCoordinateReferenceSystem()
-    WGS84.createFromId(4326)
+    WGS84 = QgsCoordinateReferenceSystem(4326)
 
     def __init__(self, iface):
         """Constructor.
@@ -229,16 +228,32 @@ class SlackTrees:
             if compare_func(val, const):
                 yield feature
 
+    # TODO refactor local variable QgsCoordinateTransform from layer.crs to WGS84
+    # TODO refactor local variable QgsCoordianteTransform from WGS84 to required WGS84/UTM zone
+    # TODO refactor finish error message
     def _reproject_features(self, feature_generator):
+        """
+        if invalid return
+
+        if WGS84/UTM Zone yield
+        elif layer.crs == WGS84 feature to WGS84 feature to WGS84/UTM
+        else feature to WGS84/UTM
+        :param feature_generator:
+        :return:
+        """
+
+        layer_crs = self.layer.crs()
+
         if not self._valid_bounds():
             msg = 'Layer bounds {} {} spanning multiple  coordinates systems'
             raise ValueError(msg)
 
-        layer_crs = self.layer.crs()
-
-        if bool(re.match(r'(326|327)\d{2}', '')):
+        # yield features without re-projecting them if layer has already crs WGS84/UTM
+        elif bool(re.match(r'.*(?:326|327)\d{2}', layer_crs.authid())):
             for feature in feature_generator:
                 yield feature
+
+        # re-project features
         else:
             for feature in feature_generator:
                 if layer_crs != self.__class__.WGS84:
@@ -250,6 +265,7 @@ class SlackTrees:
 
                 yield self._reproject_feature(feature, self.__class__.WGS84, dst_crs)
 
+    # TODO refactor accept QGSCoordinateTransform object
     def _reproject_feature(self, feature, src_crs, dst_crs):
         out_feature = QgsFeature()
         crs_transform = QgsCoordinateTransform(src_crs, dst_crs)
