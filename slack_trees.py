@@ -229,35 +229,34 @@ class SlackTrees:
                 yield feature
 
     # TODO refactor local variable QgsCoordinateTransform from layer.crs to WGS84
-    # TODO refactor local variable QgsCoordianteTransform from WGS84 to required WGS84/UTM zone
     # TODO refactor finish error message
     def _reproject_features(self, feature_generator):
-        """
-        if invalid return
-
-        if WGS84/UTM Zone yield
-        elif layer.crs == WGS84 feature to WGS84 feature to WGS84/UTM
-        else feature to WGS84/UTM
-        :param feature_generator:
-        :return:
-        """
-
-        layer_crs = self.layer.crs()
-
         if not self._valid_bounds():
             msg = 'Layer bounds {} {} spanning multiple  coordinates systems'
             raise ValueError(msg)
 
+        layer_crs = self.layer.crs()
+
         # yield features without re-projecting them if layer has already crs WGS84/UTM
-        elif bool(re.match(r'.*(?:326|327)\d{2}', layer_crs.authid())):
+        if bool(re.match(r'.*(?:326|327)\d{2}', layer_crs.authid())):
             for feature in feature_generator:
                 yield feature
 
-        # re-project features
+        # re-project to WGS84/UTM if layer has WGS84 and yield
+        elif layer_crs == self.__class__.WGS84:
+            bounds = self._bounding_box()
+            epsg = self._latlon_to_epsg(bounds.boundingBox().xMinimum(),
+                                        bounds.boundingBox().yMinimum())
+            dst_crs = QgsCoordinateReferenceSystem(epsg)
+            transform = QgsCoordinateTransform(self.__class__.WGS84, dst_crs)
+
+            for feature in feature_generator:
+                yield self._reproject_feature(feature, crs_transform=transform)
+
+        # re-project to WGS84 and WGS84/UTM if layer other crs and yield
         else:
             for feature in feature_generator:
-                if layer_crs != self.__class__.WGS84:
-                    feature = self._reproject_feature(feature, layer_crs, self.__class__.WGS84)
+                feature = self._reproject_feature(feature, layer_crs, self.__class__.WGS84)
 
                 epsg = self._latlon_to_epsg(feature.geometry().boundingBox().xMinimum(),
                                             feature.geometry().boundingBox().yMinimum())
@@ -265,27 +264,34 @@ class SlackTrees:
 
                 yield self._reproject_feature(feature, self.__class__.WGS84, dst_crs)
 
-    # TODO refactor accept QGSCoordinateTransform object
-    def _reproject_feature(self, feature, src_crs, dst_crs):
+    def _reproject_feature(self, feature, src_crs=None, dst_crs=None, crs_transform=None):
         out_feature = QgsFeature()
-        crs_transform = QgsCoordinateTransform(src_crs, dst_crs)
 
         geometry = feature.geometry()
-        geometry.transform(crs_transform)
+        geometry = self._reproject_geometry(geometry, src_crs, dst_crs, crs_transform)
 
         out_feature.setGeometry(geometry)
         out_feature.setAttributes(feature.attributes())
 
         return out_feature
 
+    def _reproject_geometry(self, geometry, src_crs=None, dst_crs=None, crs_transform=None):
+        if src_crs is not None and dst_crs is not None:
+            transform = QgsCoordinateTransform(src_crs, dst_crs)
+        else:
+            assert crs_transform is not None
+            transform = crs_transform
+
+        geometry.transform(transform)
+
+        return geometry
+
     def _valid_bounds(self):
         bounds = self._bounding_box()
+        layer_crs = self.layer.crs()
 
-        if self.layer.crs() != self.__class__.WGS84:
-            feature = QgsFeature()
-            feature.setGeometry(bounds)
-            feature = self._reproject_feature(feature, self.layer.crs(), self.__class__.WGS84)
-            bounds = feature.geometry()
+        if layer_crs != self.__class__.WGS84:
+            bounds = self._reproject_geometry(bounds, layer_crs, self.__class__.WGS84)
 
         bottom_left = (bounds.boundingBox().xMinimum(), bounds.boundingBox().yMinimum())
         top_right = (bounds.boundingBox().xMaximum(), bounds.boundingBox().yMaximum())
