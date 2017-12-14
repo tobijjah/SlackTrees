@@ -1,7 +1,7 @@
 import os
 import unittest
 from slack_trees import SlackTrees
-from qgis.core import QgsFeatureRequest
+from qgis.core import QgsFeatureRequest, QgsCoordinateTransform, QgsCoordinateReferenceSystem
 from utilities import get_qgis_app, make_test_layer, delete_layer
 
 
@@ -57,7 +57,6 @@ class SlackTreesTest(unittest.TestCase):
 
         self.assertEqual(str(err.exception), msg)
 
-    # TODO test on valid re-projection
     def test_reproject_features(self):
         feature_generator = self.layer.getFeatures()
 
@@ -66,8 +65,34 @@ class SlackTreesTest(unittest.TestCase):
 
         self.assertEqual(len(result), len(expected))
 
+    def test_reproject_features_reprojection(self):
+        gen = self.layer.getFeatures()
+        src_crs = self.layer.crs()
+        dst_crs = QgsCoordinateReferenceSystem(32633)
+        transform = QgsCoordinateTransform(src_crs, dst_crs)
+
+        expected = [fet for fet in self.layer.getFeatures()]
+        result = list(self.plugin._reproject_features(gen))
+
+        for exp, res in zip(expected, result):
+            geometry = exp.geometry()
+            geometry.transform(transform)
+
+            self.assertEqual(len(res.attributes()), len(exp.attributes()))
+            self.assertEqual(res.geometry().asPoint(), geometry.asPoint())
+
     def test_reproject_feature(self):
         pass
+
+    def test_reproject_geometry(self):
+        pass
+
+    def test_reproject_geometry_raise(self):
+        with self.assertRaises(AssertionError):
+            self.plugin._reproject_geometry('foo')
+
+        with self.assertRaises(AssertionError):
+            self.plugin._reproject_geometry('foo', src_crs='bar')
 
     # TODO test with invalid layer
     def test_valid_bounds(self):
