@@ -228,7 +228,6 @@ class SlackTrees:
             if compare_func(val, const):
                 yield feature
 
-    # TODO refactor local variable QgsCoordinateTransform from layer.crs to WGS84
     # TODO refactor finish error message
     def _reproject_features(self, feature_generator):
         if not self._valid_bounds():
@@ -255,8 +254,10 @@ class SlackTrees:
 
         # re-project to WGS84 and WGS84/UTM if layer other crs and yield
         else:
+            wgs_transform = QgsCoordinateTransform(layer_crs, self.__class__.WGS84)
+
             for feature in feature_generator:
-                feature = self._reproject_feature(feature, layer_crs, self.__class__.WGS84)
+                feature = self._reproject_feature(feature, crs_transform=wgs_transform)
 
                 epsg = self._latlon_to_epsg(feature.geometry().boundingBox().xMinimum(),
                                             feature.geometry().boundingBox().yMinimum())
