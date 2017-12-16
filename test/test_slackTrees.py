@@ -81,9 +81,11 @@ class SlackTreesTest(unittest.TestCase):
             self.assertEqual(len(res.attributes()), len(exp.attributes()))
             self.assertEqual(res.geometry().asPoint(), geometry.asPoint())
 
+    # TODO implement
     def test_reproject_feature(self):
         pass
 
+    # TODO implement
     def test_reproject_geometry(self):
         pass
 
@@ -97,8 +99,38 @@ class SlackTreesTest(unittest.TestCase):
     # TODO test with invalid layer
     def test_valid_bounds(self):
         result = self.plugin._valid_bounds()
-
         self.assertEqual(result, True)
+
+    def test_slacklines(self):
+        feature_generator = self.plugin._reproject_features(self.layer.getFeatures())
+        result = list(self.plugin._slacklines(feature_generator))
+        print result
+
+    def test_min_distance(self):
+        # init test
+        result = self.plugin.min_distance
+        self.assertEqual(result, 10.0)
+
+        # setter test
+        self.plugin.min_distance = 10
+        self.assertEqual(self.plugin.min_distance, 10)
+
+    # TODO implement
+    def test_min_distance_raises(self):
+        pass
+
+    def test_max_distance(self):
+        # init test
+        result = self.plugin.max_distance
+        self.assertEqual(result, 50.0)
+
+        # setter test
+        self.plugin.max_distance = 100
+        self.assertEqual(self.plugin.max_distance, 100)
+
+    # TODO implement
+    def test_max_distance_raises(self):
+        pass
 
 
 if __name__ == "__main__":
