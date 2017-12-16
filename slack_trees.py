@@ -33,9 +33,10 @@ from qgis.core import (QgsCoordinateReferenceSystem,
                        QgsMessageLog)
 import os.path
 import re
+from itertools import combinations
 
 
-class SlackTrees:
+class SlackTrees(object):
     """QGIS Plugin Implementation."""
     COMPARES = {
         '<': lambda val, const: val < const,
@@ -76,21 +77,64 @@ class SlackTrees:
         # Declare instance attributes
         self.dlg = None
         self.layer = None
+        self._max_distance = None
+        self._min_distance = None
+        self._spacing = None
         self.actions = []
         self.menu = self.tr(u'&SlackTrees')
+
         # TODO: We are going to let the user set this up in a future iteration
         self.toolbar = self.iface.addToolBar(u'SlackTrees')
         self.toolbar.setObjectName(u'SlackTrees')
 
+    @property
+    def min_distance(self):
+        # set hard coded min distance cap if not initialized through gui
+        if self._min_distance is None:
+            self.min_distance = 10.0
+
+        return self._min_distance
+
+    @min_distance.setter
+    def min_distance(self, value):
+        low = 0.0
+        high = 499.0
+
+        if value < low or value > high or not isinstance(value, (int, float)) or value > self.max_distance:
+            type_err = 'Value {} with {} is not accepted'.format(value, type(value))
+            value_err = 'Value {} must be {} < x < {}'.format(value, low, high)
+            raise TypeError(type_err) if not isinstance(value, (int, float)) else ValueError(value_err)
+
+        self._min_distance = value
+
+    @property
+    def max_distance(self):
+        # set hard coded max distance cap if not initialized through gui
+        if self._max_distance is None:
+            self.max_distance = 50.0
+
+        return self._max_distance
+
+    @max_distance.setter
+    def max_distance(self, value):
+        low = 1.0
+        high = 500.0
+
+        if value < low or value > high or not isinstance(value, (int, float)) or value < self._min_distance:
+            type_err = 'Value {} with {} is not accepted'.format(value, type(value))
+            value_err = 'Value {} must be {} < x < {}'.format(value, low, high)
+            raise TypeError(type_err) if not isinstance(value, (int, float)) else ValueError(value_err)
+
+        self._max_distance = value
+
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
-        """Get the translation for a string using Qt translation API.
-
+        """
+        Get the translation for a string using Qt translation API.
         We implement this ourselves since we do not inherit QObject.
 
         :param message: String for translation.
         :type message: str, QString
-
         :returns: Translated version of message.
         :rtype: QString
         """
@@ -114,35 +158,26 @@ class SlackTrees:
         :param icon_path: Path to the icon for this action. Can be a resource
             path (e.g. ':/plugins/foo/bar.png') or a normal file system path.
         :type icon_path: str
-
         :param text: Text that should be shown in menu items for this action.
         :type text: str
-
         :param callback: Function to be called when the action is triggered.
         :type callback: function
-
         :param enabled_flag: A flag indicating if the action should be enabled
             by default. Defaults to True.
         :type enabled_flag: bool
-
         :param add_to_menu: Flag indicating whether the action should also
             be added to the menu. Defaults to True.
         :type add_to_menu: bool
-
         :param add_to_toolbar: Flag indicating whether the action should also
             be added to the toolbar. Defaults to True.
         :type add_to_toolbar: bool
-
         :param status_tip: Optional text to show in a popup when mouse pointer
             hovers over the action.
         :type status_tip: str
-
         :param parent: Parent widget for the new action. Defaults None.
         :type parent: QWidget
-
         :param whats_this: Optional text to show in the status bar when the
             mouse pointer hovers over the action.
-
         :returns: The action that was created. Note that the action is also
             added to self.actions list.
         :rtype: QAction
@@ -176,7 +211,6 @@ class SlackTrees:
 
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
-
         icon_path = ':/plugins/SlackTrees/icon.png'
         self.add_action(
             icon_path,
@@ -264,6 +298,10 @@ class SlackTrees:
                 dst_crs = QgsCoordinateReferenceSystem(epsg)
 
                 yield self._reproject_feature(feature, self.__class__.WGS84, dst_crs)
+
+    def _slacklines(self, feature_generator):
+        for i in combinations(feature_generator, 2):
+            yield i
 
     def _reproject_feature(self, feature, src_crs=None, dst_crs=None, crs_transform=None):
         out_feature = QgsFeature()
