@@ -80,7 +80,7 @@
       <number>1</number>
      </property>
      <property name="maximum">
-      <double>200.000000000000000</double>
+      <double>499.000000000000000</double>
      </property>
      <property name="value">
       <double>10.000000000000000</double>
@@ -102,8 +102,11 @@
      <property name="decimals">
       <number>1</number>
      </property>
+     <property name="minimum">
+      <double>1.000000000000000</double>
+     </property>
      <property name="maximum">
-      <double>200.000000000000000</double>
+      <double>500.000000000000000</double>
      </property>
      <property name="singleStep">
       <double>1.000000000000000</double>
