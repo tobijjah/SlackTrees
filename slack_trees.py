@@ -20,20 +20,17 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
-from PyQt4.QtGui import QAction, QIcon
-# Initialize Qt resources from file resources.py
+import re
+import os.path
 import resources
-# Import the code for the dialog
+from itertools import combinations
+from PyQt4.QtGui import QAction, QIcon
+from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
 from slack_trees_dialog import SlackTreesDialog
 from qgis.core import (QgsCoordinateReferenceSystem,
                        QgsCoordinateTransform,
                        QgsFeature,
-                       QgsGeometry,
-                       QgsMessageLog)
-import os.path
-import re
-from itertools import combinations
+                       QgsGeometry,)
 
 
 class SlackTrees(object):
