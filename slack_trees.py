@@ -243,11 +243,12 @@ class SlackTrees(object):
         attr_idx = self.layer.fieldNameIndex(field_name)
 
         if attr_idx > -1:
-            for feature in self._get_filtered_features(attr_idx, operator, const):
-                yield feature
+            generator = self._get_filtered_features(attr_idx, operator, const)
         else:
-            for feature in self._get_unfiltered_features():
-                yield feature
+            generator = self._get_unfiltered_features()
+
+        for feature in generator:
+            yield feature
 
     def _get_unfiltered_features(self):
         for feature in self.layer.getFeatures():
@@ -273,34 +274,34 @@ class SlackTrees(object):
 
         layer_crs = self.layer.crs()
 
-        # yield features without re-projecting them if layer has already crs WGS84/UTM
         if bool(re.match(r'.*(?:326|327)\d{2}', layer_crs.authid())):
-            for feature in feature_generator:
-                yield feature
+            wgs84_transform = None
+            wgs84utm_transform = None
 
-        # re-project to WGS84/UTM if layer has WGS84 and yield
         elif layer_crs == self.__class__.WGS84:
             bounds = self._bounding_box()
             epsg = self._latlon_to_epsg(bounds.boundingBox().xMinimum(),
                                         bounds.boundingBox().yMinimum())
             dst_crs = QgsCoordinateReferenceSystem(epsg)
-            transform = QgsCoordinateTransform(self.__class__.WGS84, dst_crs)
 
-            for feature in feature_generator:
-                yield self._reproject_feature(feature, crs_transform=transform)
+            wgs84_transform = None
+            wgs84utm_transform = QgsCoordinateTransform(self.__class__.WGS84, dst_crs)
 
-        # re-project to WGS84 and WGS84/UTM if layer other crs and yield
         else:
-            wgs_transform = QgsCoordinateTransform(layer_crs, self.__class__.WGS84)
+            wgs84_transform = QgsCoordinateTransform(layer_crs, self.__class__.WGS84)
+            wgs84utm_transform = None
 
-            for feature in feature_generator:
-                feature = self._reproject_feature(feature, crs_transform=wgs_transform)
-
+        for feature in feature_generator:
+            if wgs84utm_transform is not None:
+                feature = self._reproject_feature(feature, crs_transform=wgs84utm_transform)
+            elif wgs84_transform is not None:
+                feature = self._reproject_feature(feature, crs_transform=wgs84_transform)
                 epsg = self._latlon_to_epsg(feature.geometry().boundingBox().xMinimum(),
                                             feature.geometry().boundingBox().yMinimum())
                 dst_crs = QgsCoordinateReferenceSystem(epsg)
+                feature = self._reproject_feature(feature, self.__class__.WGS84, dst_crs)
 
-                yield self._reproject_feature(feature, self.__class__.WGS84, dst_crs)
+            yield feature
 
     def _slacklines(self, feature_generator):
         for fet1, fet2 in combinations(feature_generator, 2):
