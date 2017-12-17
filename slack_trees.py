@@ -30,7 +30,8 @@ from slack_trees_dialog import SlackTreesDialog
 from qgis.core import (QgsCoordinateReferenceSystem,
                        QgsCoordinateTransform,
                        QgsFeature,
-                       QgsGeometry,)
+                       QgsGeometry,
+                       QgsPoint)
 
 
 class SlackTrees(object):
@@ -74,9 +75,10 @@ class SlackTrees(object):
         # Declare instance attributes
         self.dlg = None
         self.layer = None
+        self._spacing = None
+        self._slack_layer = None
         self._max_distance = None
         self._min_distance = None
-        self._spacing = None
         self.actions = []
         self.menu = self.tr(u'&SlackTrees')
 
@@ -259,10 +261,14 @@ class SlackTrees(object):
             if compare_func(val, const):
                 yield feature
 
-    # TODO refactor finish error message
     def _reproject_features(self, feature_generator):
         if not self._valid_bounds():
-            msg = 'Layer bounds {} {} spanning multiple  coordinates systems'
+            bounds = self._bounding_box()
+            msg = 'Bounds (xmin, ymin, xmax, ymax) = ({:f}, {:f}, {:f}, {:f}) spanning multiple coordinates systems'\
+                .format(bounds.boundingBox().xMinimum(),
+                        bounds.boundingBox().yMinimum(),
+                        bounds.boundingBox().xMaximum(),
+                        bounds.boundingBox().yMaximum())
             raise ValueError(msg)
 
         layer_crs = self.layer.crs()
@@ -297,8 +303,22 @@ class SlackTrees(object):
                 yield self._reproject_feature(feature, self.__class__.WGS84, dst_crs)
 
     def _slacklines(self, feature_generator):
-        for i in combinations(feature_generator, 2):
-            yield i
+        for fet1, fet2 in combinations(feature_generator, 2):
+            geo1, geo2 = fet1.geometry(), fet2.geometry()
+            point1, point2 = geo1.asPoint(), geo2.asPoint()
+            attr1, attr2 = fet1.attributes(), fet2.attributes()
+
+            distance = round(geo1.distance(geo2), 2)
+
+            if distance < self.min_distance or distance > self.max_distance:
+                continue
+
+            out_feat = QgsFeature()
+            out_line = QgsGeometry.fromPolyline([QgsPoint(point1), QgsPoint(point2)])
+            out_feat.setGeometry(out_line)
+            out_feat.setAttributes(attr1 + attr2 + [distance])
+
+            yield out_feat
 
     def _reproject_feature(self, feature, src_crs=None, dst_crs=None, crs_transform=None):
         out_feature = QgsFeature()
