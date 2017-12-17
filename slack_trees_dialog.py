@@ -22,6 +22,7 @@
 """
 import os
 from PyQt4 import QtGui, uic
+from PyQt4.QtGui import QMessageBox
 from qgis.utils import showPluginHelp
 
 
@@ -59,3 +60,9 @@ class SlackTreesDialog(QtGui.QDialog, FORM_CLASS):
 
     def _update_progressbar(self, progress):
         self.ProgressBar.setValue(progress)
+
+    def warn_user(self, msg):
+        QMessageBox.warning(self, 'An error occurred', msg)
+
+    def critical_user(self, msg):
+        QMessageBox.critical(self, 'An critical error occurred', msg)
