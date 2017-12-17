@@ -115,9 +115,15 @@ class SlackTreesTest(unittest.TestCase):
         self.plugin.min_distance = 10
         self.assertEqual(self.plugin.min_distance, 10)
 
-    # TODO implement
     def test_min_distance_raises(self):
-        pass
+        with self.assertRaises(TypeError):
+            self.plugin.min_distance = '1'
+
+        with self.assertRaises(ValueError):
+            self.plugin.min_distance = -1.0
+
+        with self.assertRaises(ValueError):
+            self.plugin.min_distance = 500.00
 
     def test_max_distance(self):
         # init test
@@ -128,9 +134,15 @@ class SlackTreesTest(unittest.TestCase):
         self.plugin.max_distance = 100
         self.assertEqual(self.plugin.max_distance, 100)
 
-    # TODO implement
     def test_max_distance_raises(self):
-        pass
+        with self.assertRaises(TypeError):
+            self.plugin.max_distance = '1'
+
+        with self.assertRaises(ValueError):
+            self.plugin.max_distance = -1.0
+
+        with self.assertRaises(ValueError):
+            self.plugin.max_distance = 501.00
 
 
 if __name__ == "__main__":
