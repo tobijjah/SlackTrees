@@ -257,22 +257,6 @@
  <connections>
   <connection>
    <sender>CancelOkButtons</sender>
-   <signal>accepted()</signal>
-   <receiver>SlackTreesDialogBase</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>337</x>
-     <y>204</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>521</x>
-     <y>239</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>CancelOkButtons</sender>
    <signal>rejected()</signal>
    <receiver>SlackTreesDialogBase</receiver>
    <slot>reject()</slot>
