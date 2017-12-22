@@ -24,7 +24,7 @@ import re
 import os.path
 import resources
 from itertools import combinations
-from PyQt4.QtGui import QAction, QIcon
+from PyQt4.QtGui import QAction, QIcon, QFileDialog
 from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
 from slack_trees_dialog import SlackTreesDialog
 from qgis.core import (QgsCoordinateReferenceSystem,
@@ -236,8 +236,8 @@ class SlackTrees(object):
         # Run the dialog event loop
         result = self.dlg.exec_()
         # See if OK was pressed
-        if result:
-            pass
+        if result == QFileDialog.Rejected:
+            return
 
     def _get_features(self, field_name, operator, const):
         attr_idx = self.layer.fieldNameIndex(field_name)
