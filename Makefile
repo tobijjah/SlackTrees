@@ -44,7 +44,8 @@ PLUGINNAME = SlackTrees
 
 PY_FILES = \
 	__init__.py \
-	slack_trees.py slack_trees_dialog.py
+	slack_trees.py slack_trees_dialog.py \
+	event.py
 
 UI_FILES = slack_trees_dialog_base.ui
 
