@@ -32,6 +32,7 @@ class SlackTreesDialogTest(unittest.TestCase):
         """Runs after each test."""
         self.dialog = None
 
+    @unittest.skip('Button does not exists any more')
     def test_dialog_ok(self):
         """Test we can click OK."""
         button = self.dialog.CancelOkButtons.button(QDialogButtonBox.Ok)
@@ -41,7 +42,7 @@ class SlackTreesDialogTest(unittest.TestCase):
 
     def test_dialog_cancel(self):
         """Test we can click cancel."""
-        button = self.dialog.CancelOkButtons.button(QDialogButtonBox.Cancel)
+        button = self.dialog.CancelButton.button(QDialogButtonBox.Cancel)
         button.click()
         result = self.dialog.result()
         self.assertEqual(result, QDialog.Rejected)
