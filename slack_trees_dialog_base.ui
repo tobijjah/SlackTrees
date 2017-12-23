@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>522</width>
+    <width>454</width>
     <height>240</height>
    </rect>
   </property>
@@ -14,14 +14,14 @@
    <string>SlackTrees</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
+   <item row="0" column="0" colspan="2">
     <widget class="QLabel" name="InputLabel">
      <property name="text">
       <string>Input point layer</string>
      </property>
     </widget>
    </item>
-   <item row="0" column="1" colspan="5">
+   <item row="0" column="2" colspan="7">
     <widget class="QgsMapLayerComboBox" name="InputMapLayerComboBox">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -44,7 +44,7 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="1">
+   <item row="1" column="2">
     <widget class="QgsDoubleSpinBox" name="SpacingDoubleSpinBox">
      <property name="decimals">
       <number>1</number>
@@ -67,14 +67,14 @@
      </property>
     </widget>
    </item>
-   <item row="4" column="1" colspan="3">
+   <item row="4" column="2" colspan="4">
     <widget class="QLineEdit" name="OutputLIneEdit">
      <property name="readOnly">
       <bool>true</bool>
      </property>
     </widget>
    </item>
-   <item row="2" column="1">
+   <item row="2" column="2" colspan="2">
     <widget class="QgsDoubleSpinBox" name="LengthMinDoubleSpinBox">
      <property name="decimals">
       <number>1</number>
@@ -90,14 +90,14 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="2">
+   <item row="2" column="4">
     <widget class="QLabel" name="LengthMinLabel">
      <property name="text">
       <string>min</string>
      </property>
     </widget>
    </item>
-   <item row="2" column="3" colspan="2">
+   <item row="2" column="5" colspan="3">
     <widget class="QgsDoubleSpinBox" name="LengthMaxDoubleSpinBox">
      <property name="decimals">
       <number>1</number>
@@ -119,7 +119,7 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="5">
+   <item row="2" column="8">
     <widget class="QLabel" name="LengthMaxLabel">
      <property name="text">
       <string>max</string>
@@ -133,10 +133,10 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="1">
+   <item row="3" column="2">
     <widget class="QgsFieldComboBox" name="ExcludeFieldComboBox"/>
    </item>
-   <item row="3" column="2" colspan="2">
+   <item row="3" column="3" colspan="3">
     <widget class="QComboBox" name="ExcludeComboBox">
      <item>
       <property name="text">
@@ -170,7 +170,7 @@
      </item>
     </widget>
    </item>
-   <item row="3" column="4" colspan="2">
+   <item row="3" column="6" colspan="3">
     <widget class="QLineEdit" name="ExcludeLineEdit"/>
    </item>
    <item row="4" column="0">
@@ -180,14 +180,14 @@
      </property>
     </widget>
    </item>
-   <item row="4" column="4" colspan="2">
+   <item row="4" column="6" colspan="3">
     <widget class="QPushButton" name="OutputBrowseButton">
      <property name="text">
       <string>Browse</string>
      </property>
     </widget>
    </item>
-   <item row="6" column="0">
+   <item row="6" column="0" colspan="2">
     <widget class="QCheckBox" name="CanvasCheckBox">
      <property name="text">
       <string>Add to canvas</string>
@@ -197,27 +197,34 @@
      </property>
     </widget>
    </item>
-   <item row="8" column="0">
+   <item row="7" column="0">
     <widget class="QDialogButtonBox" name="HelpButton">
      <property name="standardButtons">
       <set>QDialogButtonBox::Help</set>
      </property>
     </widget>
    </item>
-   <item row="8" column="1" colspan="3">
+   <item row="7" column="1" colspan="3">
     <widget class="QProgressBar" name="ProgressBar">
      <property name="value">
       <number>0</number>
      </property>
     </widget>
    </item>
-   <item row="8" column="4" colspan="2">
-    <widget class="QDialogButtonBox" name="CancelOkButtons">
+   <item row="7" column="4" colspan="3">
+    <widget class="QDialogButtonBox" name="CancelButton">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+      <set>QDialogButtonBox::Cancel</set>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="7" colspan="2">
+    <widget class="QDialogButtonBox" name="OkButton">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Ok</set>
      </property>
     </widget>
    </item>
@@ -230,6 +237,19 @@
       <size>
        <width>20</width>
        <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="2" column="9">
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>40</width>
+       <height>20</height>
       </size>
      </property>
     </spacer>
@@ -256,7 +276,7 @@
  <resources/>
  <connections>
   <connection>
-   <sender>CancelOkButtons</sender>
+   <sender>CancelButton</sender>
    <signal>rejected()</signal>
    <receiver>SlackTreesDialogBase</receiver>
    <slot>reject()</slot>
