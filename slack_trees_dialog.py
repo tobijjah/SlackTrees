@@ -21,6 +21,7 @@
  ***************************************************************************/
 """
 import os
+from event import Signal
 from PyQt4 import QtGui, uic
 from PyQt4.QtGui import QMessageBox
 from qgis.utils import showPluginHelp
@@ -39,6 +40,8 @@ class SlackTreesDialog(QtGui.QDialog, FORM_CLASS):
         # self.<objectname>, and you can use auto connect slots - see
         # http://qt-project.org/doc/qt-4.8/designer-using-a-ui-file.html
         # #widgets-and-dialogs-with-auto-connect
+        self.signals = Signal('GUI EVENTS')
+
         self.setupUi(self)
         self._layer_fields()
         self.attach_events()
@@ -47,6 +50,7 @@ class SlackTreesDialog(QtGui.QDialog, FORM_CLASS):
         self.InputMapLayerComboBox.layerChanged.connect(self._layer_fields)
         self.HelpButton.clicked.connect(self._open_help)
         self.OutputBrowseButton.clicked.connect(self._output_dialog)
+        self.OkButton.clicked.connect(self._ok)
 
     def _layer_fields(self):
         current_layer = self.InputMapLayerComboBox.currentLayer()
@@ -57,6 +61,17 @@ class SlackTreesDialog(QtGui.QDialog, FORM_CLASS):
 
     def _output_dialog(self):
         pass
+
+    def _ok(self):
+        if self.InputMapLayerComboBox.currentLayer() is not None and self.OutputLIneEdit.text() != '':
+            kwargs = {}
+            self.signals.fire('OK', **kwargs)
+        else:
+            layer_miss = 'No input layer specified'
+            out_path_miss = 'Please specify output shapefile'
+            msg = layer_miss if self.InputMapLayerComboBox.currentLayer() is None else out_path_miss
+            self.warn_user(msg)
+
 
     def _update_progressbar(self, progress):
         self.ProgressBar.setValue(progress)
