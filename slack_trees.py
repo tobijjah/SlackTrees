@@ -235,7 +235,7 @@ class SlackTrees(object):
         self.dlg.show()
         # Run the dialog event loop
         result = self.dlg.exec_()
-        # See if OK was pressed
+        # See if Cancel was pressed
         if result == QFileDialog.Rejected:
             return
 
