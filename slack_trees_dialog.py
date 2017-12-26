@@ -64,14 +64,21 @@ class SlackTreesDialog(QtGui.QDialog, FORM_CLASS):
 
     def _ok(self):
         if self.InputMapLayerComboBox.currentLayer() is not None and self.OutputLIneEdit.text() != '':
-            kwargs = {}
+            kwargs = {'layer': self.InputMapLayerComboBox.currentLayer(),
+                      'spacing': self.SpacingDoubleSpinBox.value(),
+                      'min_max': (self.LengthMinDoubleSpinBox.value(), self.LengthMaxDoubleSpinBox.value()),
+                      'field': self.ExcludeFieldComboBox.currentText(),
+                      'op': self.ExcludeComboBox.currentText(),
+                      'const': self.ExcludeLineEdit.text(),
+                      'out': self.OutputLIneEdit.text(), }
+
             self.signals.fire('OK', **kwargs)
+
         else:
             layer_miss = 'No input layer specified'
             out_path_miss = 'Please specify output shapefile'
             msg = layer_miss if self.InputMapLayerComboBox.currentLayer() is None else out_path_miss
             self.warn_user(msg)
-
 
     def _update_progressbar(self, progress):
         self.ProgressBar.setValue(progress)
