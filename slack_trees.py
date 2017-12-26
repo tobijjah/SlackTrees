@@ -100,8 +100,8 @@ class SlackTrees(object):
         high = 499.0
 
         if value < low or value > high or not isinstance(value, (int, float)) or value > self.max_distance:
-            type_err = 'Value {} with {} is not accepted'.format(value, type(value))
-            value_err = 'Value {} must be {} < x < {}'.format(value, low, high)
+            type_err = 'Min value {} with {} is not accepted'.format(value, type(value))
+            value_err = 'Min value {} must be {} < x < {}'.format(value, low, high)
             raise TypeError(type_err) if not isinstance(value, (int, float)) else ValueError(value_err)
 
         self._min_distance = value
@@ -120,8 +120,8 @@ class SlackTrees(object):
         high = 500.0
 
         if value < low or value > high or not isinstance(value, (int, float)) or value < self._min_distance:
-            type_err = 'Value {} with {} is not accepted'.format(value, type(value))
-            value_err = 'Value {} must be {} < x < {}'.format(value, low, high)
+            type_err = 'Max value {} with {} is not accepted'.format(value, type(value))
+            value_err = 'Max value {} must be {} < x < {}'.format(value, low, high)
             raise TypeError(type_err) if not isinstance(value, (int, float)) else ValueError(value_err)
 
         self._max_distance = value
@@ -233,11 +233,28 @@ class SlackTrees(object):
         """Run method that performs all the real work"""
         # show the dialog
         self.dlg.show()
+        self.dlg.signals.connect('OK', self.controller)
         # Run the dialog event loop
         result = self.dlg.exec_()
         # See if Cancel was pressed
         if result == QFileDialog.Rejected:
             return
+
+    def controller(self, layer=None, spacing=None, min_max=None, field=None, op=None, const=None, out=None):
+        try:
+            self.layer = layer
+            self._spacing = spacing
+            self.min_distance, self.max_distance = min_max
+
+            feat_gen = self._get_features(field, op, const)
+            rproj_gen = self._reproject_features(feat_gen)
+            slacklines = self._slacklines(rproj_gen)
+
+        except (TypeError, ValueError) as err:
+            self.dlg.warn_user(str(err))
+        except Exception as err:
+            msg = 'Unexpected error: {}, please contact a maintainer'.format(err)
+            self.dlg.critical_user(msg)
 
     def _get_features(self, field_name, operator, const):
         attr_idx = self.layer.fieldNameIndex(field_name)
