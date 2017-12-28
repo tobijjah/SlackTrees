@@ -74,8 +74,9 @@ class SlackTrees(object):
 
         # Declare instance attributes
         self.dlg = None
-        self.layer = None
+        self._layer = None
         self._spacing = None
+        self.__dst_crs = None
         self._slack_layer = None
         self._max_distance = None
         self._min_distance = None
@@ -87,8 +88,47 @@ class SlackTrees(object):
         self.toolbar.setObjectName(u'SlackTrees')
 
     @property
+    def layer(self):
+        if self._layer is None:
+            raise ValueError('Please provide a valid point vector layer')
+
+        return self._layer
+
+    @layer.setter
+    def layer(self, value):
+        if value.geometryType() != 0 or not value.isValid():
+            geo_err = 'Vector layer geometry type must be 0 is {}'.format(value.geometryType())
+            valid_err = 'Vector layer is invalid'
+            msg = geo_err if value.geometryType() != 0 else valid_err
+            raise ValueError(msg)
+
+        self._layer = value
+        self._set_target_crs()
+
+    def _set_target_crs(self):
+        if not self._valid_bounds():
+            bounds = self.__class__.bounding_box(self.layer)
+            msg = 'Bounds (xmin, ymin, xmax, ymax) = ({:f}, {:f}, {:f}, {:f}) covering multiple coordinates systems'\
+                .format(bounds.boundingBox().xMinimum(),
+                        bounds.boundingBox().yMinimum(),
+                        bounds.boundingBox().xMaximum(),
+                        bounds.boundingBox().yMaximum())
+            raise ValueError(msg)
+
+        bounds = self.__class__.bounding_box(self.layer)
+        layer_crs = self.layer.crs()
+
+        if layer_crs != self.__class__.WGS84:
+            bounds = self._reproject_geometry(bounds, layer_crs, self.__class__.WGS84)
+
+        bottom_left = (bounds.boundingBox().xMinimum(), bounds.boundingBox().yMinimum())
+        epsg = self.__class__.latlon_to_epsg(*bottom_left)
+
+        self.__dst_crs = QgsCoordinateReferenceSystem(epsg)
+
+    @property
     def min_distance(self):
-        # set hard coded min distance cap if not initialized through gui
+        # set default min distance cap if not initialized through gui
         if self._min_distance is None:
             self.min_distance = 10.0
 
@@ -108,7 +148,7 @@ class SlackTrees(object):
 
     @property
     def max_distance(self):
-        # set hard coded max distance cap if not initialized through gui
+        # set default max distance cap if not initialized through gui
         if self._max_distance is None:
             self.max_distance = 50.0
 
@@ -228,7 +268,6 @@ class SlackTrees(object):
         # remove the toolbar
         del self.toolbar
 
-    # TODO attach to layercombobox event handler (update self.layer)
     def run(self):
         """Run method that performs all the real work"""
         # show the dialog
@@ -240,7 +279,7 @@ class SlackTrees(object):
         if result == QFileDialog.Rejected:
             return
 
-    def controller(self, layer=None, spacing=None, min_max=None, field=None, op=None, const=None, out=None):
+    def controller(self, layer=None, spacing=None, min_max=None, field=None, op=None, const=None, out=None, add=True):
         try:
             self.layer = layer
             self._spacing = spacing
@@ -280,43 +319,25 @@ class SlackTrees(object):
                 yield feature
 
     def _reproject_features(self, feature_generator):
-        if not self._valid_bounds():
-            bounds = self._bounding_box()
-            msg = 'Bounds (xmin, ymin, xmax, ymax) = ({:f}, {:f}, {:f}, {:f}) spanning multiple coordinates systems'\
-                .format(bounds.boundingBox().xMinimum(),
-                        bounds.boundingBox().yMinimum(),
-                        bounds.boundingBox().xMaximum(),
-                        bounds.boundingBox().yMaximum())
-            raise ValueError(msg)
-
         layer_crs = self.layer.crs()
+        dst_crs = self.__dst_crs
 
         if bool(re.match(r'.*(?:326|327)\d{2}', layer_crs.authid())):
             wgs84_transform = None
             wgs84utm_transform = None
-
         elif layer_crs == self.__class__.WGS84:
-            bounds = self._bounding_box()
-            epsg = self._latlon_to_epsg(bounds.boundingBox().xMinimum(),
-                                        bounds.boundingBox().yMinimum())
-            dst_crs = QgsCoordinateReferenceSystem(epsg)
-
             wgs84_transform = None
             wgs84utm_transform = QgsCoordinateTransform(self.__class__.WGS84, dst_crs)
-
         else:
             wgs84_transform = QgsCoordinateTransform(layer_crs, self.__class__.WGS84)
-            wgs84utm_transform = None
+            wgs84utm_transform = QgsCoordinateTransform(self.__class__.WGS84, dst_crs)
 
         for feature in feature_generator:
-            if wgs84utm_transform is not None:
-                feature = self._reproject_feature(feature, crs_transform=wgs84utm_transform)
-            elif wgs84_transform is not None:
+            if wgs84_transform is not None and wgs84utm_transform is not None:
                 feature = self._reproject_feature(feature, crs_transform=wgs84_transform)
-                epsg = self._latlon_to_epsg(feature.geometry().boundingBox().xMinimum(),
-                                            feature.geometry().boundingBox().yMinimum())
-                dst_crs = QgsCoordinateReferenceSystem(epsg)
-                feature = self._reproject_feature(feature, self.__class__.WGS84, dst_crs)
+                feature = self._reproject_feature(feature, crs_transform=wgs84utm_transform)
+            elif wgs84utm_transform is not None:
+                feature = self._reproject_feature(feature, crs_transform=wgs84utm_transform)
 
             yield feature
 
@@ -361,7 +382,7 @@ class SlackTrees(object):
         return geometry
 
     def _valid_bounds(self):
-        bounds = self._bounding_box()
+        bounds = self.__class__.bounding_box(self.layer)
         layer_crs = self.layer.crs()
 
         if layer_crs != self.__class__.WGS84:
@@ -370,14 +391,17 @@ class SlackTrees(object):
         bottom_left = (bounds.boundingBox().xMinimum(), bounds.boundingBox().yMinimum())
         top_right = (bounds.boundingBox().xMaximum(), bounds.boundingBox().yMaximum())
 
-        return self._latlon_to_epsg(*bottom_left) == self._latlon_to_epsg(*top_right)
+        return self.__class__.latlon_to_epsg(*bottom_left) == self.__class__.latlon_to_epsg(*top_right)
 
-    def _bounding_box(self):
-        self.layer.selectAll()
-        bounds = self.layer.boundingBoxOfSelected()
+    @staticmethod
+    def bounding_box(layer):
+        layer.selectAll()
+        bounds = layer.boundingBoxOfSelected()
+        layer.deselect(layer.selectedFeaturesIds())
         return QgsGeometry.fromRect(bounds)
 
-    def _latlon_to_epsg(self, x, y):
+    @staticmethod
+    def latlon_to_epsg(x, y):
         if x < -180 or x > 180 or y < -90 or y > 90:
             msg = 'lat/x {:f} and lon/y {:f} overflowing WGS84 coordinates system'.format(y, x)
             raise ValueError(msg)
