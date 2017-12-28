@@ -69,6 +69,9 @@
    </item>
    <item row="4" column="2" colspan="4">
     <widget class="QLineEdit" name="OutputLIneEdit">
+     <property name="text">
+      <string/>
+     </property>
      <property name="readOnly">
       <bool>true</bool>
      </property>
