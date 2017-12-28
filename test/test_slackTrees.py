@@ -43,7 +43,7 @@ class SlackTreesTest(unittest.TestCase):
         self.assertEqual(len(known_field), len(expected))
 
     def test_latlon_to_epsg(self):
-        result = self.plugin._latlon_to_epsg(-177.3456, 56.2423)
+        result = self.plugin.latlon_to_epsg(-177.3456, 56.2423)
         expected = 32601
 
         self.assertEqual(result, expected)
@@ -53,7 +53,7 @@ class SlackTreesTest(unittest.TestCase):
         msg = 'lat/x {:f} and lon/y {:f} overflowing WGS84 coordinates system'.format(y, x)
 
         with self.assertRaises(ValueError) as err:
-            self.plugin._latlon_to_epsg(x, y)
+            self.plugin.latlon_to_epsg(x, y)
 
         self.assertEqual(str(err.exception), msg)
 
@@ -101,6 +101,10 @@ class SlackTreesTest(unittest.TestCase):
         result = self.plugin._valid_bounds()
         self.assertEqual(result, True)
 
+    def test_bounding_box(self):
+        pass
+
+    # TODO write test
     def test_slacklines(self):
         feature_generator = self.plugin._reproject_features(self.layer.getFeatures())
         result = list(self.plugin._slacklines(feature_generator))
