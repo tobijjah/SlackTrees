@@ -36,6 +36,7 @@ from qgis.core import (QgsCoordinateReferenceSystem,
 
 class SlackTrees(object):
     """QGIS Plugin Implementation."""
+    WGS84 = QgsCoordinateReferenceSystem(4326)
     COMPARES = {
         '<': lambda val, const: val < const,
         '>': lambda val, const: val > const,
@@ -44,7 +45,6 @@ class SlackTrees(object):
         '==': lambda val, const: val == const,
         '!=': lambda val, const: val != const
     }
-    WGS84 = QgsCoordinateReferenceSystem(4326)
 
     def __init__(self, iface):
         """Constructor.
@@ -303,8 +303,7 @@ class SlackTrees(object):
         else:
             generator = self._get_unfiltered_features()
 
-        for feature in generator:
-            yield feature
+        return generator
 
     def _get_unfiltered_features(self):
         for feature in self.layer.getFeatures():
