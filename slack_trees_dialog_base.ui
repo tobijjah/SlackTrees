@@ -68,7 +68,7 @@
     </widget>
    </item>
    <item row="4" column="2" colspan="4">
-    <widget class="QLineEdit" name="OutputLIneEdit">
+    <widget class="QLineEdit" name="OutputLineEdit">
      <property name="text">
       <string/>
      </property>
