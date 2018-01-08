@@ -29,8 +29,9 @@ from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
 from slack_trees_dialog import SlackTreesDialog
 from qgis.core import (QgsCoordinateReferenceSystem,
                        QgsCoordinateTransform,
-                       QgsFeature,
+                       QgsVectorLayer,
                        QgsGeometry,
+                       QgsFeature,
                        QgsPoint)
 
 
@@ -76,7 +77,6 @@ class SlackTrees(object):
         self.dlg = None
         self._layer = None
         self._spacing = None
-        self.__dst_crs = None
         self._slack_layer = None
         self._max_distance = None
         self._min_distance = None
@@ -103,9 +103,9 @@ class SlackTrees(object):
             raise ValueError(msg)
 
         self._layer = value
-        self._set_target_crs()
 
-    def _set_target_crs(self):
+    @property
+    def dst_crs(self):
         if not self._valid_bounds():
             bounds = self.__class__.bounding_box(self.layer)
             msg = 'Bounds (xmin, ymin, xmax, ymax) = ({:f}, {:f}, {:f}, {:f}) covering multiple coordinates systems'\
@@ -124,7 +124,7 @@ class SlackTrees(object):
         bottom_left = (bounds.boundingBox().xMinimum(), bounds.boundingBox().yMinimum())
         epsg = self.__class__.latlon_to_epsg(*bottom_left)
 
-        self.__dst_crs = QgsCoordinateReferenceSystem(epsg)
+        return QgsCoordinateReferenceSystem(epsg)
 
     @property
     def min_distance(self):
@@ -295,6 +295,9 @@ class SlackTrees(object):
             msg = 'Unexpected error: {}, please contact a maintainer'.format(err)
             self.dlg.critical_user(msg)
 
+    def make_layer(self):
+        mem_layer = QgsVectorLayer('LineString?crs=epsg:{}'.format(self.dst_crs), 'Slacklines', 'memory')
+
     def _get_features(self, field_name, operator, const):
         attr_idx = self.layer.fieldNameIndex(field_name)
 
@@ -319,7 +322,7 @@ class SlackTrees(object):
 
     def _reproject_features(self, feature_generator):
         layer_crs = self.layer.crs()
-        dst_crs = self.__dst_crs
+        dst_crs = self.dst_crs
 
         if bool(re.match(r'.*(?:326|327)\d{2}', layer_crs.authid())):
             wgs84_transform = None
