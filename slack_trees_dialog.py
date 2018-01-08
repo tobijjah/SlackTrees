@@ -23,7 +23,7 @@
 import os
 from event import Signal
 from PyQt4 import QtGui, uic
-from PyQt4.QtGui import QMessageBox
+from PyQt4.QtGui import QMessageBox, QFileDialog
 from qgis.utils import showPluginHelp
 
 
@@ -60,17 +60,18 @@ class SlackTreesDialog(QtGui.QDialog, FORM_CLASS):
         pass
 
     def _output_dialog(self):
-        pass
+        out = QFileDialog.getSaveFileName(self, 'Save output shapefile', None, 'ESRI Shape files (*.shp)')
+        self.OutputLineEdit.setText(out)
 
     def _ok(self):
-        if self.InputMapLayerComboBox.currentLayer() is not None and self.OutputLIneEdit.text() != '':
+        if self.InputMapLayerComboBox.currentLayer() is not None and self.OutputLineEdit.text() != '':
             kwargs = {'layer': self.InputMapLayerComboBox.currentLayer(),
                       'spacing': self.SpacingDoubleSpinBox.value(),
                       'min_max': (self.LengthMinDoubleSpinBox.value(), self.LengthMaxDoubleSpinBox.value()),
                       'field': self.ExcludeFieldComboBox.currentText(),
                       'op': self.ExcludeComboBox.currentText(),
                       'const': self.ExcludeLineEdit.text(),
-                      'out': self.OutputLIneEdit.text(), }
+                      'out': self.OutputLineEdit.text(), }
 
             self.signals.fire('OK', **kwargs)
 
